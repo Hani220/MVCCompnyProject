@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Route.IKEA.PL.Models;
+using Route.IKEA.PL.ViewModels;
+using Route.IKEA.PL.ViewModels.Common;
 using System.Diagnostics;
 
 namespace Route.IKEA.PL.Controllers

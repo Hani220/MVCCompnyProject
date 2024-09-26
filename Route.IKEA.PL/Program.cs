@@ -1,52 +1,56 @@
 using Microsoft.EntityFrameworkCore;
-using Route.IKEA.DLL.Persistance.Data;
+using Route.IKEA.BLL.Services.Departments;
+using Route.IKEA.DAL.Persistance.Data;
+using Route.IKEA.DAL.Persistance.Repositories.Departments;
+
 
 namespace Route.IKEA.PL
 {
-	public class Program
-	{
-		public static void Main(string[] args)
-		{
-			var builder = WebApplication.CreateBuilder(args);
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            var builder = WebApplication.CreateBuilder(args);
 
-			#region Configure Services
+            #region Configure Services
 
-			// Add services to the container.
-			builder.Services.AddControllersWithViews();
+            // Add services to the container.
+            builder.Services.AddControllersWithViews();
 
-			// Register ApplicationDbContext and configure SQL Server provider
-			builder.Services.AddDbContext<ApplicationDbContext>(options =>
-			{
-				options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-			});
+            // Register ApplicationDbContext
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-			#endregion
+            // Register DepartmentRepository and DepartmentService
+            builder.Services.AddScoped<DepartmentRepository>();
+            builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 
-			var app = builder.Build();
+            #endregion
 
-			#region Configure Kestrel Middlewares
+            var app = builder.Build();
 
-			// Configure the HTTP request pipeline.
-			if (!app.Environment.IsDevelopment())
-			{
-				app.UseExceptionHandler("/Home/Error");
-				app.UseHsts();
-			}
+            #region Configure Kestrel Middlewares
 
-			app.UseHttpsRedirection();
-			app.UseStaticFiles();
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseExceptionHandler("/Home/Error");
+                app.UseHsts();
+            }
 
-			app.UseRouting();
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
 
-			app.UseAuthorization();
+            app.UseRouting();
 
-			app.MapControllerRoute(
-				name: "default",
-				pattern: "{controller=Home}/{action=Index}/{id?}");
+            app.UseAuthorization();
 
-			#endregion
+            app.MapControllerRoute(
+                name: "default",
+                pattern: "{controller=Home}/{action=Index}/{id?}");
 
-			app.Run();
-		}
-	}
+            #endregion
+
+            app.Run();
+        }
+    }
 }

@@ -5,15 +5,15 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Route.IKEA.DLL.Persistance.Data;
+using Route.IKEA.DAL.Persistance.Data;
 
 #nullable disable
 
-namespace Route.IKEA.DLL.Persistance.Data.Migrations
+namespace Route.IKEA.DAL.persistance.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240923005423_Department Module Migration")]
-    partial class DepartmentModuleMigration
+    [Migration("20240925041728_Department Module")]
+    partial class DepartmentModule
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace Route.IKEA.DLL.Persistance.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Route.IKEA.DLL.Models.Department.Department", b =>
+            modelBuilder.Entity("Route.IKEA.DAL.Entities.Department.Department", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -43,12 +43,10 @@ namespace Route.IKEA.DLL.Persistance.Data.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETDATE()");
+                        .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<DateTime>("CreationDate")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("datetime2")
-                        .HasComputedColumnSql("GETDATE()");
+                    b.Property<DateOnly>("CreationDate")
+                        .HasColumnType("date");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Route.IKEA.DLL.Models
+namespace Route.IKEA.DAL.Entities
 {
 	public class ModelBase
 	{

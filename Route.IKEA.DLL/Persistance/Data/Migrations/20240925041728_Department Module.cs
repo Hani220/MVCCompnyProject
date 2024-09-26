@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Route.IKEA.DLL.Persistance.Data.Migrations
+namespace Route.IKEA.DAL.persistance.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class DepartmentModuleMigration : Migration
+    public partial class DepartmentModule : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -20,10 +20,10 @@ namespace Route.IKEA.DLL.Persistance.Data.Migrations
                     Name = table.Column<string>(type: "varchar(50)", nullable: false),
                     Code = table.Column<string>(type: "varchar(20)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false, computedColumnSql: "GETDATE()"),
+                    CreationDate = table.Column<DateOnly>(type: "date", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     CreatedBy = table.Column<int>(type: "int", nullable: false),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     LastModifiedBy = table.Column<int>(type: "int", nullable: false),
                     LastModifiedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },

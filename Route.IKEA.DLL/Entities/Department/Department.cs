@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Route.IKEA.DLL.Models.Department
+namespace Route.IKEA.DAL.Entities.Department
 {
 	public class Department :ModelBase
 	{
@@ -14,6 +14,7 @@ namespace Route.IKEA.DLL.Models.Department
 
 		public string? Description { get; set; }
 
-		public DateTime CreationDate { get; set; }
-	}
+        public DateOnly CreationDate { get; set; }
+
+    }
 }

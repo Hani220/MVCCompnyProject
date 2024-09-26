@@ -7,11 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Route.IKEA.DLL\Route.IKEA.DLL.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\" />
+    <ProjectReference Include="..\Route.IKEA.DLL\Route.IKEA.DAL.csproj" />
   </ItemGroup>
 
 </Project>

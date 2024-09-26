@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Route.IKEA.DLL.Models.Department;
+using Route.IKEA.DAL.Entities.Department;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Route.IKEA.DLL.Persistance.Data
+namespace Route.IKEA.DAL.Persistance.Data
 {
 	public class ApplicationDbContext :DbContext
 	{

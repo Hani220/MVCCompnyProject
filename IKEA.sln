@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Route.IKEA.PL", "Route.IKEA
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Route.IKEA.BLL", "Route.IKEA.BLL\Route.IKEA.BLL.csproj", "{F5475B25-CC08-471B-8621-E38519E86355}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Route.IKEA.DLL", "Route.IKEA.DLL\Route.IKEA.DLL.csproj", "{0E116FDC-92DD-44B7-86F3-DC599A3261CE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Route.IKEA.DAL", "Route.IKEA.DLL\Route.IKEA.DAL.csproj", "{0E116FDC-92DD-44B7-86F3-DC599A3261CE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
