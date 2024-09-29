@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Route.IKEA.DAL.Entities.Department;
+using Route.IKEA.DAL.Entities.Employee;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,5 +23,6 @@ namespace Route.IKEA.DAL.Persistance.Data
 		}
 
 		public DbSet<Department> Departments { get; set; }
+        public DbSet<Employee> Employees { get; set; }
     }
 }

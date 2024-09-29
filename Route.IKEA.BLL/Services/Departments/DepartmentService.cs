@@ -14,14 +14,14 @@ namespace Route.IKEA.BLL.Services.Departments
 	
 	public class DepartmentService : IDepartmentService
 	{
-		private readonly DepartmentRepository _departmentRepository;
+        private readonly IDepartmentRepository _departmentRepository;
 
-        public DepartmentService(DepartmentRepository departmentRepository)
+        public DepartmentService(IDepartmentRepository departmentRepository)
         {
             _departmentRepository = departmentRepository;
         }
 
-        
+
 
 
         public IEnumerable<DepartmentDto> GetAllDepartments()
