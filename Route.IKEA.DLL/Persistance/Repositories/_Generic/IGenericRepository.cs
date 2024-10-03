@@ -1,5 +1,5 @@
 ﻿using Route.IKEA.DAL.Entities;
-using Route.IKEA.DAL.Entities.Department;
+using Route.IKEA.DAL.Entities.Departments;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +15,9 @@ namespace Route.IKEA.DAL.Persistance.Repositories._Generic
 
         IEnumerable<T> GetAll(bool withAsNoTracking = true);
 
-        IQueryable<T> GetAllAsIQueryable();
+        IQueryable<T> GetIQueryable();
+
+        IEnumerable<T> GetIEnemerable();
 
 
         int Add(T entity);

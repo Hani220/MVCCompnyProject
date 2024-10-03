@@ -1,5 +1,5 @@
 ﻿using Route.IKEA.BLL.Models.Departments;
-using Route.IKEA.DAL.Entities.Department;
+using Route.IKEA.DAL.Entities.Departments;
 using System;
 using System.Collections.Generic;
 using System.Linq;

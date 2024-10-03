@@ -1,4 +1,5 @@
 ﻿using Route.IKEA.DAL.Common.Enums;
+using Route.IKEA.DAL.Entities.Departments;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -6,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Route.IKEA.DAL.Entities.Employee
+namespace Route.IKEA.DAL.Entities.Employees
 {
     public class Employee :ModelBase
     {
@@ -29,6 +30,10 @@ namespace Route.IKEA.DAL.Entities.Employee
         public Gender Geneder { get; set; }
 
         public EmployeeType EmployeeType { get; set; }
+
+        public int? DepartmentId { get; set; }
+
+        public virtual Department? Department { get; set; }
 
         
     }

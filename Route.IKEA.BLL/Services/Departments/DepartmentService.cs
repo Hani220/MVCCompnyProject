@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Route.IKEA.BLL.Models.Departments;
-using Route.IKEA.DAL.Entities.Department;
+using Route.IKEA.DAL.Entities.Departments;
 using Route.IKEA.DAL.Persistance.Repositories.Departments;
 using System;
 using System.Collections.Generic;
@@ -25,39 +25,47 @@ namespace Route.IKEA.BLL.Services.Departments
 
 
         public IEnumerable<DepartmentDto> GetAllDepartments()
-		{
-			var departments = _departmentRepository.GetAllAsIQueryable().Select(department => new DepartmentDto
-			{
-				Code = department.Code,
-				Name = department.Name,
-				CreationDate = department.CreationDate,
-				Id = department.Id
-			}).AsNoTracking().ToList();
-			
-			return departments;
-		}
+        {
+            var departments = _departmentRepository.GetIQueryable()
+                .Where(department => !department.IsDeleted) // Exclude soft-deleted records
+                .Select(department => new DepartmentDto
+                {
+                    Code = department.Code,
+                    Name = department.Name,
+                    CreationDate = department.CreationDate,
+                    Id = department.Id
+                })
+                .AsNoTracking()
+                .ToList();
 
-		public DepartmentDetailsDto? GetDepartmentById(int id)
-		{
-			var department = _departmentRepository.Get(id);
+            return departments;
+        }
 
-			if (department is not null)
-				return new DepartmentDetailsDto()
-				{
-					Id = department.Id,
-					Code = department.Code,
-					Name = department.Name,
-					CreationDate = department.CreationDate,
-					CreatedBy = department.CreatedBy,
-					CreatedOn = department.CreatedOn,
-					LastModifiedBy = department.LastModifiedBy,
-					LastModifiedOn = department.LastModifiedOn,
-				};
-			return null;
+        public DepartmentDetailsDto? GetDepartmentById(int id)
+        {
+            var department = _departmentRepository.Get(id);
 
-		}
+            // Check if the department is soft-deleted and exclude it
+            if (department is not null && !department.IsDeleted)
+            {
+                return new DepartmentDetailsDto()
+                {
+                    Id = department.Id,
+                    Code = department.Code,
+                    Name = department.Name,
+                    CreationDate = department.CreationDate,
+                    CreatedBy = department.CreatedBy,
+                    CreatedOn = department.CreatedOn,
+                    LastModifiedBy = department.LastModifiedBy,
+                    LastModifiedOn = department.LastModifiedOn,
+                };
+            }
 
-		public int CreateDepartment(CreatedDepartmentDto departmentDto)
+            return null;
+        }
+
+
+        public int CreateDepartment(CreatedDepartmentDto departmentDto)
 		{
 			var department = new Department()
 			{

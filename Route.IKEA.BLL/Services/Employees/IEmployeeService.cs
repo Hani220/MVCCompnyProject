@@ -1,6 +1,6 @@
 ﻿using Route.IKEA.BLL.Models.Departments;
 using Route.IKEA.BLL.Models.Employees;
-using Route.IKEA.DAL.Entities.Employee;
+using Route.IKEA.DAL.Entities.Employees;
 using System;
 using System.Collections.Generic;
 using System.Linq;

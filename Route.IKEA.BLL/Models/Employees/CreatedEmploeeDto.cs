@@ -38,6 +38,10 @@ namespace Route.IKEA.BLL.Models.Employees
         public Gender Gender { get; set; }
 
         public EmployeeType EmployeeType { get; set; }
+        [Display(Name="Department")]
+        public int? DepartmentId { get; set; }
+        public string Department{ get; set; } =null!;
+
 
 
     }

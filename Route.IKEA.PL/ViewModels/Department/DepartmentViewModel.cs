@@ -2,7 +2,7 @@
 
 namespace Route.IKEA.PL.ViewModels.Department
 {
-    public class DepartmentEditViewModel
+    public class DepartmentViewModel
     {
         public string Name { get; set; } = null!;
 

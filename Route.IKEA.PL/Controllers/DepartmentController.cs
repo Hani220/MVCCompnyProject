@@ -67,18 +67,35 @@ namespace Route.IKEA.PL.Controllers
 
 
         [HttpPost]
-        public IActionResult Create(CreatedDepartmentDto department)
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(DepartmentViewModel departmentVm)
         {
             var message = "Department Is Not Created";
             if (ModelState.IsValid) // server side validation
             {
                 try
                 {
-                    var count = _departmentService.CreateDepartment(department);
-                    if (count > 0)
-                        return RedirectToAction("Index");
+
+                    var createdDepartment = new CreatedDepartmentDto()
+                    {
+
+                        Code = departmentVm.Code,
+                        Name = departmentVm.Name,
+                        CreationDate = departmentVm.CreationDate,
+                        Description = departmentVm.Description,
+                    };
+                    var Created = _departmentService.CreateDepartment(createdDepartment) > 0;
+                    
+                    if (Created)
+        
+                        TempData["Message"] = "Department is Created Successfuly";
+
+                    
                     else
-                        ModelState.AddModelError(string.Empty, message);
+                        TempData["Message"] = "Department is not Created ";
+
+
+                  return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
@@ -90,12 +107,12 @@ namespace Route.IKEA.PL.Controllers
 
                 }
                 ModelState.AddModelError(string.Empty, message);
-                return View(department);
+                return View(departmentVm);
             }
 
 
             ModelState.AddModelError(string.Empty, message);
-            return View(department);
+            return View(departmentVm);
         }
 
         #endregion
@@ -113,7 +130,7 @@ namespace Route.IKEA.PL.Controllers
             if (department == null)
                 return NotFound(); // 404 
 
-            return View(new DepartmentEditViewModel()
+            return View(new DepartmentViewModel()
             {
                 Code = department.Code,
                 Name = department.Name,
@@ -124,7 +141,8 @@ namespace Route.IKEA.PL.Controllers
         }
 
         [HttpPost]
-        public IActionResult Edit([FromRoute] int id, DepartmentEditViewModel departmentViewModel)
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit([FromRoute] int id, DepartmentViewModel departmentViewModel)
         {
             if (!ModelState.IsValid) // Server-Side Validation
                 return View(departmentViewModel);
@@ -187,7 +205,7 @@ namespace Route.IKEA.PL.Controllers
 
 
         [HttpPost] // Post => /Department/Delete/id
-
+        [ValidateAntiForgeryToken]
         public IActionResult Delete(int id)
         {
             var message = string.Empty;
@@ -196,21 +214,34 @@ namespace Route.IKEA.PL.Controllers
             {
                 var deleted = _departmentService.DeleteDepartment(id);
                 if (deleted)
+                {
+                    // Deletion successful, redirect to the Index page
                     return RedirectToAction(nameof(Index));
-                message = "an error has occured during deleting the department";
+                }
+                else
+                {
+                    message = "An error has occurred during deleting the department.";
+                }
             }
             catch (Exception ex)
             {
-                //1. Log Exception
+                // 1. Log the Exception
                 _logger.LogError(ex, ex.Message);
 
-                //2.Set Message
-                message = _environment.IsDevelopment() ? ex.Message : "an error has occured during deleting the department";
+                // 2. Set Message for Development/Production
+                message = _environment.IsDevelopment() ? ex.Message : "An error has occurred while deleting the department.";
             }
-            // ModelState.AddModelError(string.Empty, message);
-            return RedirectToAction(nameof(Index));
 
-        } 
+            // If we reach this point, there was a failure, so return the view with the department and error message.
+            var department = _departmentService.GetDepartmentById(id);
+            if (department == null)
+                return NotFound(); // Handle case where department is no longer found
+
+            // Adding the error message to the ModelState
+            ModelState.AddModelError(string.Empty, message);
+            return View(department); // Return to the delete confirmation view with an error message
+        }
+
         #endregion
     }
 }

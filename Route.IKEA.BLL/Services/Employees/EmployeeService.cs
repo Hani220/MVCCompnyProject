@@ -1,6 +1,7 @@
-﻿using Route.IKEA.BLL.Models.Employees;
+﻿using Microsoft.EntityFrameworkCore;
+using Route.IKEA.BLL.Models.Employees;
 using Route.IKEA.DAL.Common.Enums;
-using Route.IKEA.DAL.Entities.Employee;
+using Route.IKEA.DAL.Entities.Employees;
 using Route.IKEA.DAL.Persistance.Repositories.Employees;
 using System;
 using System.Collections.Generic;
@@ -22,22 +23,26 @@ namespace Route.IKEA.BLL.Services.Employees
         public IEnumerable<EmployeeDto> GetAllEmployees()
         {
 
-            var query =_employeeRepository.GetAllAsIQueryable()
+            var employees =_employeeRepository.GetIQueryable()
                 .Where(E=> !E.IsDeleted)
+                .Include(E => E.Department)
                 .Select(employee => new EmployeeDto()
-            {
-                Id = employee.Id,
-                Name = employee.Name,
-                Age = employee.Age,
-                Salary = employee.Salary,
-                IsActive = employee.IsActive,
-                Email = employee.Email,
-                Gender = employee.Geneder.ToString(),
-                EmployeeType = employee.EmployeeType.ToString(),
+                {
+                        Id = employee.Id,
+                        Name = employee.Name,
+                        Age = employee.Age,
+                        Salary = employee.Salary,
+                        IsActive = employee.IsActive,
+                        Email = employee.Email,
+                        Gender = employee.Geneder.ToString(),
+                        EmployeeType = employee.EmployeeType.ToString(),
+                        DepartmentName = employee.Department.Name
 
 
-            }).ToList();
-            return query;
+                }).ToList();
+
+            return employees;
+           
         }
 
         public EmployeeDetailsDto? GetEmployeeById(int id)
@@ -58,6 +63,7 @@ namespace Route.IKEA.BLL.Services.Employees
                     HiringDate = employee.HiringDate,
                     Gender =employee.Geneder,
                     EmployeeType =employee.EmployeeType,
+                   Department = employee.Department.Name
 
                 };
 
@@ -78,12 +84,14 @@ namespace Route.IKEA.BLL.Services.Employees
                 HiringDate = employeeDto.HiringDate,
                 Geneder = employeeDto.Gender,
                 EmployeeType = employeeDto.EmployeeType,
+                DepartmentId = employeeDto.DepartmentId,
                 CreatedBy =1,
                 LastModifiedBy =1,
                 LastModifiedOn =DateTime.UtcNow
             };
 
             return _employeeRepository.Add(employee);
+            
         }
 
         public int UpdateEmployee(UpdatedEmployeeDto employeeDto)
@@ -107,6 +115,7 @@ namespace Route.IKEA.BLL.Services.Employees
             employee.PhoneNumber = employeeDto.PhoneNumber;
             employee.HiringDate = employeeDto.HiringDate; 
             employee.Geneder = employeeDto.Gender;
+            employee.DepartmentId = employeeDto.DepartmentId;
             employee.EmployeeType = employeeDto.EmployeeType;
             employee.LastModifiedBy = 1; 
             employee.LastModifiedOn = DateTime.UtcNow;

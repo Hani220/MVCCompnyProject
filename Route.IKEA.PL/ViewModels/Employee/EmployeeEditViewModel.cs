@@ -20,5 +20,7 @@ namespace Route.IKEA.PL.ViewModels.Employee
         public Gender Gender { get; set; }
         public DateOnly HiringDate  { get; set; }
         public EmployeeType EmployeeType { get; set; }
+        public int? DepartmentId { get; set; }
+
     }
 }

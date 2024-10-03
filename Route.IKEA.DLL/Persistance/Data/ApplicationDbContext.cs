@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Route.IKEA.DAL.Entities.Department;
-using Route.IKEA.DAL.Entities.Employee;
+using Route.IKEA.DAL.Entities.Departments;
+using Route.IKEA.DAL.Entities.Employees;
 using System;
 using System.Collections.Generic;
 using System.Linq;

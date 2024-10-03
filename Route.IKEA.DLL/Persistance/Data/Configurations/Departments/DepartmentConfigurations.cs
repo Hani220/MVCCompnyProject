@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Route.IKEA.DAL.Entities.Department;
+using Route.IKEA.DAL.Entities.Departments;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +18,11 @@ namespace Route.IKEA.DAL.Persistance.Data.Configurations.Departments
             builder.Property(D => D.Code).HasColumnType("varchar (20)").IsRequired();
             builder.Property(D => D.CreatedOn).HasDefaultValueSql("GETUTCDATE()");
             builder.Property(D => D.LastModifiedOn).HasColumnType("datetime2");
+
+            builder.HasMany(D => D.Employees)
+                .WithOne(E => E.Department)
+                .HasForeignKey(E => E.DepartmentId)
+                .OnDelete(DeleteBehavior.SetNull);
 
 
 
