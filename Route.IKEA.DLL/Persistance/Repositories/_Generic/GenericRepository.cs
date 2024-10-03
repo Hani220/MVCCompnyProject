@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Route.IKEA.DAL.Persistance.Repositories._Generic
 {
-    public class GenericRepository<T>(ApplicationDbContext dbContext) where T : ModelBase
+    public class GenericRepository<T>(ApplicationDbContext dbContext):IGenericRepository<T> where T : ModelBase
     {
         private protected readonly ApplicationDbContext _dbContext = dbContext;
       
@@ -19,7 +19,12 @@ namespace Route.IKEA.DAL.Persistance.Repositories._Generic
             return _dbContext.Set<T>().Where(x => !x.IsDeleted).ToList();
         }
 
-        public IQueryable<T> GetAllAsIQueryable()
+        public IQueryable<T> GetIQueryable()
+        {
+            return _dbContext.Set<T>();
+        }
+
+        public IEnumerable<T> GetIEnemerable()
         {
             return _dbContext.Set<T>();
         }
@@ -47,5 +52,7 @@ namespace Route.IKEA.DAL.Persistance.Repositories._Generic
             _dbContext.Set<T>().Update(entity);
             return _dbContext.SaveChanges();
         }
+
+       
     }
 }

@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.DotNet.Scaffolding.Shared.Messaging;
+using Route.IKEA.BLL.Models.Departments;
 using Route.IKEA.BLL.Models.Employees;
+using Route.IKEA.BLL.Services.Departments;
 using Route.IKEA.BLL.Services.Employees;
 using Route.IKEA.PL.ViewModels.Department;
 using Route.IKEA.PL.ViewModels.Employee;
@@ -16,6 +19,7 @@ namespace Route.IKEA.PL.Controllers
 
         public EmployeeController(
             IEmployeeService employeeService,
+            
             ILogger<EmployeeController> logger,
             IWebHostEnvironment environment)
         {
@@ -54,12 +58,15 @@ namespace Route.IKEA.PL.Controllers
         [HttpGet] // Get => /Employee/Create
         public IActionResult Create()
         {
+           
+         
             //var Employee = _EmployeeRepository.Add(Employee dep);
             return View();
         }
 
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Create(CreatedEmployeeDto employee)
         {
             var message = "Employee Is Not Created";
@@ -106,9 +113,12 @@ namespace Route.IKEA.PL.Controllers
 
             var employee = _employeeService.GetEmployeeById(id.Value);
 
+      
+
             if (employee == null)
                 return NotFound(); // 404 
-
+           
+           
             return View(new EmployeeEditViewModel()
             {
                 Name = employee.Name,
@@ -126,6 +136,7 @@ namespace Route.IKEA.PL.Controllers
 
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Edit([FromRoute] int id, UpdatedEmployeeDto employee)
         {
             if (!ModelState.IsValid)
@@ -164,8 +175,9 @@ namespace Route.IKEA.PL.Controllers
         #endregion
 
         #region Delete  
-       
-        [HttpPost, ActionName("Delete")] // POST: /Employee/Delete/id
+        
+        [HttpPost] // POST: /Employee/Delete/id
+        [ValidateAntiForgeryToken]
         public IActionResult Delete(int id)
         {
             var message = string.Empty;

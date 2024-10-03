@@ -21,7 +21,9 @@ namespace Route.IKEA.PL
 
             // Register ApplicationDbContext
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+                options.UseLazyLoadingProxies()
+                .UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 
             // Register DepartmentRepository and DepartmentService
             // Register repositories
