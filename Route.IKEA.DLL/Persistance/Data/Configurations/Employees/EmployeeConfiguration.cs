@@ -22,7 +22,7 @@ namespace Route.IKEA.DAL.Persistance.Data.Configurations.Employees
             builder.Property(E => E.Salary).HasColumnType("decimal(8,2)");
             builder.Property(E => E.CreatedOn).HasDefaultValueSql("GETUTCDATE()");
 
-            builder.Property(E => E.Geneder).HasConversion
+            builder.Property(E => E.Gender).HasConversion
                 (
                      (gender) => gender.ToString(),
                       (gender) => (Gender)Enum.Parse(typeof(Gender), gender)

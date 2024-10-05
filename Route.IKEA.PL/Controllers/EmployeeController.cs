@@ -1,11 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.DotNet.Scaffolding.Shared.Messaging;
-using Route.IKEA.BLL.Models.Departments;
 using Route.IKEA.BLL.Models.Employees;
 using Route.IKEA.BLL.Services.Departments;
 using Route.IKEA.BLL.Services.Employees;
-using Route.IKEA.PL.ViewModels.Department;
 using Route.IKEA.PL.ViewModels.Employee;
 
 namespace Route.IKEA.PL.Controllers
@@ -30,24 +26,26 @@ namespace Route.IKEA.PL.Controllers
         #endregion
 
         #region Index
-
         [HttpGet] // Get : /Employee/Index
-        public IActionResult Index()
+        public async Task <IActionResult> Index(string search)
         {
-            var employee = _employeeService.GetAllEmployees();
-
-            return View(employee);
+            var employees = await _employeeService.GetEmployeesAsync(search);
+           
+            //if(!string.IsNullOrEmpty(search))
+            //    return PartialView("Partials/_EmployeeListPartial", employee);
+            return View(employees);
         }
+
         #endregion
 
         #region Details
         [HttpGet] // Get : /Employee/Details
-        public IActionResult Details(int? id)
+        public async Task  <IActionResult> Details(int? id)
         {
             if (id is null)
                 return BadRequest();
 
-            var employee = _employeeService.GetEmployeeById(id.Value);
+            var employee =await  _employeeService.GetEmployeeByIdAsync(id.Value);
             if (employee is null)
                 return NotFound();
             return View(employee);
@@ -56,29 +54,31 @@ namespace Route.IKEA.PL.Controllers
 
         #region Create  
         [HttpGet] // Get => /Employee/Create
-        public IActionResult Create()
+        public IActionResult Create([FromServices] IDepartmentService departmentService)
         {
-           
-         
             //var Employee = _EmployeeRepository.Add(Employee dep);
+            ViewData["Departments"] = departmentService.GetAllDepartmentsAsync();
             return View();
         }
 
 
-        [HttpPost]
+
         [ValidateAntiForgeryToken]
-        public IActionResult Create(CreatedEmployeeDto employee)
+        [HttpPost]
+        public async Task <IActionResult> Create(CreatedEmployeeDto employee)
         {
             var message = "Employee Is Not Created";
             if (ModelState.IsValid) // server side validation
             {
                 try
                 {
-                    var count = _employeeService.CreateEmployee(employee);
+                    var count = await _employeeService.CreateEmployeeAsync(employee);
                     if (count > 0)
-                        return RedirectToAction("Index");
+                        TempData["message"] = "Employee Is created";
+
                     else
-                        ModelState.AddModelError(string.Empty, message);
+                        TempData["message"] = "Employee Is Not created";
+                    //message = "Employee is not created.";
                 }
                 catch (Exception ex)
                 {
@@ -89,8 +89,10 @@ namespace Route.IKEA.PL.Controllers
                     message = _environment.IsDevelopment() ? ex.Message : "Employee Is Not Created";
 
                 }
+
                 ModelState.AddModelError(string.Empty, message);
-                return View(employee);
+                return RedirectToAction(nameof(Index));
+                //return View(employee);
             }
 
 
@@ -99,19 +101,18 @@ namespace Route.IKEA.PL.Controllers
         }
 
 
-
         #endregion
 
         #region Edit 
 
         [HttpGet] // Get => /Employee/Edit
-        public IActionResult Edit(int? id)
+        public async Task <IActionResult> Edit(int? id)
         {
 
             if (id == null)
                 return BadRequest(); // 400 & i can redirect user to another page
 
-            var employee = _employeeService.GetEmployeeById(id.Value);
+            var employee = await _employeeService.GetEmployeeByIdAsync(id.Value);
 
       
 
@@ -137,7 +138,7 @@ namespace Route.IKEA.PL.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit([FromRoute] int id, UpdatedEmployeeDto employee)
+        public async Task<IActionResult> Edit([FromRoute] int id, UpdatedEmployeeDto employee)
         {
             if (!ModelState.IsValid)
                 return View(employee);
@@ -150,7 +151,7 @@ namespace Route.IKEA.PL.Controllers
                 employee.Id = id;
 
                 // Call service to update the employee
-                var updated = _employeeService.UpdateEmployee(employee) > 0;
+                var updated = await _employeeService.UpdateEmployeeAsync(employee) > 0;
 
                 if (updated)
                     return RedirectToAction("Index");
@@ -178,13 +179,13 @@ namespace Route.IKEA.PL.Controllers
         
         [HttpPost] // POST: /Employee/Delete/id
         [ValidateAntiForgeryToken]
-        public IActionResult Delete(int id)
+        public async  Task<IActionResult> Delete(int id)
         {
             var message = string.Empty;
 
             try
             {
-                var deleted = _employeeService.DeleteEmployee(id);
+                var deleted = await _employeeService.DeleteEmployeeAsync(id);
                 if (deleted) // Ensure delete logic returns success
                     return RedirectToAction(nameof(Index)); // Redirect on success
                 message = "An error occurred during deleting the Employee";
@@ -203,8 +204,6 @@ namespace Route.IKEA.PL.Controllers
 
 
     #endregion
-
-
 
 
 

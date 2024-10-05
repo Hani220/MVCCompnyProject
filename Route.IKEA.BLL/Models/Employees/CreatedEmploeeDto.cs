@@ -1,4 +1,5 @@
-﻿using Route.IKEA.DAL.Common.Enums;
+﻿using Microsoft.AspNetCore.Http;
+using Route.IKEA.DAL.Common.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -40,7 +41,8 @@ namespace Route.IKEA.BLL.Models.Employees
         public EmployeeType EmployeeType { get; set; }
         [Display(Name="Department")]
         public int? DepartmentId { get; set; }
-        public string Department{ get; set; } =null!;
+        public IFormFile? Image { get; set; }
+      
 
 
 

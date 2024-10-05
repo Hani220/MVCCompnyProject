@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Route.IKEA.BLL.Models.Departments;
 using Route.IKEA.DAL.Entities.Departments;
 using Route.IKEA.DAL.Persistance.Repositories.Departments;
+using Route.IKEA.DAL.Persistance.UnitOfWork;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,20 +15,23 @@ namespace Route.IKEA.BLL.Services.Departments
 	
 	public class DepartmentService : IDepartmentService
 	{
-        private readonly IDepartmentRepository _departmentRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public DepartmentService(IDepartmentRepository departmentRepository)
+        public DepartmentService(IUnitOfWork unitOfWork)
         {
-            _departmentRepository = departmentRepository;
+            
+            _unitOfWork = unitOfWork;
         }
 
 
 
 
-        public IEnumerable<DepartmentDto> GetAllDepartments()
+        public async Task <IEnumerable<DepartmentDto>> GetAllDepartmentsAsync()
         {
-            var departments = _departmentRepository.GetIQueryable()
-                .Where(department => !department.IsDeleted) // Exclude soft-deleted records
+			var departmentRepo = _unitOfWork.DepartmentRepository;
+				var departments = await  departmentRepo
+				.GetIQueryable()
+                .Where(D => !D.IsDeleted) // Exclude soft-deleted records
                 .Select(department => new DepartmentDto
                 {
                     Code = department.Code,
@@ -36,17 +40,17 @@ namespace Route.IKEA.BLL.Services.Departments
                     Id = department.Id
                 })
                 .AsNoTracking()
-                .ToList();
+                .ToListAsync();
 
-            return departments;
+            return   departments;
         }
 
-        public DepartmentDetailsDto? GetDepartmentById(int id)
+        public async Task <DepartmentDetailsDto?> GetDepartmentByIdAsync(int id)
         {
-            var department = _departmentRepository.Get(id);
+            var department = await _unitOfWork.DepartmentRepository.GetAsync(id);
 
-            // Check if the department is soft-deleted and exclude it
-            if (department is not null && !department.IsDeleted)
+			// Check if the department is soft-deleted and exclude it
+			if (department is { })
             {
                 return new DepartmentDetailsDto()
                 {
@@ -65,7 +69,7 @@ namespace Route.IKEA.BLL.Services.Departments
         }
 
 
-        public int CreateDepartment(CreatedDepartmentDto departmentDto)
+        public async Task <int> CreateDepartmentAsync(CreatedDepartmentDto departmentDto)
 		{
 			var department = new Department()
 			{
@@ -78,11 +82,12 @@ namespace Route.IKEA.BLL.Services.Departments
 				LastModifiedBy = 1,
 				LastModifiedOn = DateTime.UtcNow
 			};
-			return	_departmentRepository.Add(department);
+			_unitOfWork.DepartmentRepository.Add(department);
+			return await _unitOfWork.CompleteAsync();
 		}
 
 
-		public int UpdateDepartment(UpdatedDepartmentDto departmentDto)
+		public async Task<int> UpdateDepartmentAsync(UpdatedDepartmentDto departmentDto)
 		{
 			var department = new Department()
 			{
@@ -94,16 +99,22 @@ namespace Route.IKEA.BLL.Services.Departments
 				LastModifiedBy = 1,
 				LastModifiedOn = DateTime.UtcNow
 			};
-			return _departmentRepository.Update(department);
+			 _unitOfWork.DepartmentRepository.Update(department);
+			return await _unitOfWork.CompleteAsync();
 		}
 
-		public bool DeleteDepartment(int id)
+		public async Task <bool> DeleteDepartmentAsync(int id)
 		{
+			var departmentRepo =  _unitOfWork.DepartmentRepository;
 
-			var department = _departmentRepository.Get(id);
+
+            var department = await departmentRepo.GetAsync(id);
 			if (department is { }) 
-				return _departmentRepository.Delete(department) > 0;
-			return false;
+				 departmentRepo.Delete(department) ;
+
+			return await _unitOfWork.CompleteAsync()>0 ;
+
+			
 
 		}
 		
