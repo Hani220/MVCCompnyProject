@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿ using Microsoft.EntityFrameworkCore;
+using Route.IKEA.BLL.Common.Services.Attachments;
 using Route.IKEA.BLL.Models.Employees;
 using Route.IKEA.DAL.Common.Enums;
 using Route.IKEA.DAL.Entities.Employees;
 using Route.IKEA.DAL.Persistance.Repositories.Employees;
+using Route.IKEA.DAL.Persistance.UnitOfWork;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,41 +15,44 @@ namespace Route.IKEA.BLL.Services.Employees
 {
     public class EmployeeService : IEmployeeService
     {
-        private readonly IEmployeeRepository _employeeRepository;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IAttachmentService _attachmentService;
 
-        public EmployeeService(IEmployeeRepository employeeRepository)// ASK CLR FOR Create an Object From class implements IEmployeeRepository interface 
+        public EmployeeService(
+            IUnitOfWork unitOfWork,  // ASK CLR FOR Create an Object From class implements "IUnitOfWork" interface 
+            IAttachmentService attachmentService
+            )
+           
         {
-            _employeeRepository = employeeRepository;
+            _unitOfWork = unitOfWork;
+            _attachmentService = attachmentService;
         }
-
-        public IEnumerable<EmployeeDto> GetAllEmployees()
+        public async Task <IEnumerable<EmployeeDto>> GetEmployeesAsync(string search)
         {
-
-            var employees =_employeeRepository.GetIQueryable()
-                .Where(E=> !E.IsDeleted)
+            var employees = await  _unitOfWork.EmployeeRepository
+                .GetIQueryable()
+                .Where(E => !E.IsDeleted && (string.IsNullOrEmpty(search) || E.Name.ToLower().Contains(search.ToLower())))
                 .Include(E => E.Department)
                 .Select(employee => new EmployeeDto()
                 {
-                        Id = employee.Id,
-                        Name = employee.Name,
-                        Age = employee.Age,
-                        Salary = employee.Salary,
-                        IsActive = employee.IsActive,
-                        Email = employee.Email,
-                        Gender = employee.Geneder.ToString(),
-                        EmployeeType = employee.EmployeeType.ToString(),
-                        DepartmentName = employee.Department.Name
+                    Id = employee.Id,
+                    Name = employee.Name,
+                    Age = employee.Age,
+                    Salary = employee.Salary,
+                    IsActive = employee.IsActive,
+                    Email = employee.Email,
+                    Gender = employee.Gender.ToString(),
+                    EmployeeType = employee.EmployeeType.ToString(),
+                    DepartmentName = employee.Department.Name
+                })
+                .ToListAsync();
 
-
-                }).ToList();
-
-            return employees;
-           
+            return  employees;
         }
 
-        public EmployeeDetailsDto? GetEmployeeById(int id)
+        public async Task <EmployeeDetailsDto?> GetEmployeeByIdAsync(int id)
         {
-            var employee = _employeeRepository.Get(id);
+            var employee = await _unitOfWork.EmployeeRepository.GetAsync(id);
             if (employee is { })
                 return new EmployeeDetailsDto()
                 {
@@ -61,43 +66,55 @@ namespace Route.IKEA.BLL.Services.Employees
                     Email = employee.Email,
                     PhoneNumber = employee.PhoneNumber,
                     HiringDate = employee.HiringDate,
-                    Gender =employee.Geneder,
+                    Gender =employee.Gender,
                     EmployeeType =employee.EmployeeType,
-                   Department = employee.Department.Name
+                   Department = employee.Department.Name,
+                   Image = employee.Image
 
                 };
 
             return null;
         }
 
-        public int CreateEmployee(CreatedEmployeeDto employeeDto)
+        public async Task  <int> CreateEmployeeAsync(CreatedEmployeeDto employeeDto)
         {
+           
+
             var employee = new Employee()
             {
                 Name = employeeDto.Name,
                 Age = employeeDto.Age,
                 Address = employeeDto.Address,
-                Salary = employeeDto.Salary,
                 IsActive = employeeDto.IsActive,
                 Email = employeeDto.Email,
                 PhoneNumber = employeeDto.PhoneNumber,
                 HiringDate = employeeDto.HiringDate,
-                Geneder = employeeDto.Gender,
+                Gender = employeeDto.Gender,
                 EmployeeType = employeeDto.EmployeeType,
+                Salary = employeeDto.Salary,
                 DepartmentId = employeeDto.DepartmentId,
-                CreatedBy =1,
-                LastModifiedBy =1,
-                LastModifiedOn =DateTime.UtcNow
+               
+
+                CreatedOn = DateTime.UtcNow,
+
+                CreatedBy = 1,
+                LastModifiedBy = 1,
+                LastModifiedOn = DateTime.UtcNow,
             };
 
-            return _employeeRepository.Add(employee);
-            
+            if(employeeDto.Image is not null ) 
+                employee.Image = await _attachmentService.UploadFileAsync(employeeDto.Image, "images");
+
+
+            _unitOfWork.EmployeeRepository.Add(employee);
+            return await  _unitOfWork.CompleteAsync();
+
         }
 
-        public int UpdateEmployee(UpdatedEmployeeDto employeeDto)
+        public async Task <int> UpdateEmployeeAsync(UpdatedEmployeeDto employeeDto)
         {
             // Retrieve the existing employee from the database
-            var employee = _employeeRepository.Get(employeeDto.Id); 
+            var employee = await _unitOfWork.EmployeeRepository.GetAsync(employeeDto.Id); 
 
             if (employee == null)
             {
@@ -114,22 +131,26 @@ namespace Route.IKEA.BLL.Services.Employees
             employee.Email = employeeDto.Email;
             employee.PhoneNumber = employeeDto.PhoneNumber;
             employee.HiringDate = employeeDto.HiringDate; 
-            employee.Geneder = employeeDto.Gender;
+            employee.Gender = employeeDto.Gender;
             employee.DepartmentId = employeeDto.DepartmentId;
             employee.EmployeeType = employeeDto.EmployeeType;
             employee.LastModifiedBy = 1; 
             employee.LastModifiedOn = DateTime.UtcNow;
 
             // Mark the entity as updated
-            return _employeeRepository.Update(employee); 
+             _unitOfWork.EmployeeRepository.Update(employee);
+            return await _unitOfWork.CompleteAsync();
         }
 
-        public bool DeleteEmployee(int id)
+        public async Task <bool> DeleteEmployeeAsync(int id)
         {
-            var employee = _employeeRepository.Get(id);
+            var employeeRepo =  _unitOfWork.EmployeeRepository;
+
+            var employee = await employeeRepo.GetAsync(id);
             if (employee is { })
-                return _employeeRepository.Delete(employee) > 0;
-            return false;
+                 employeeRepo.Delete(employee);
+
+            return await _unitOfWork.CompleteAsync()>0;
         }
 
        

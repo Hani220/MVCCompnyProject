@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.DotNet.Scaffolding.Shared.Messaging;
 using Route.IKEA.BLL.Models.Departments;
 using Route.IKEA.BLL.Services.Departments;
@@ -13,14 +14,19 @@ namespace Route.IKEA.PL.Controllers
         #region Services
 
         private readonly IDepartmentService _departmentService;
+        private readonly IMapper _mapper;
         private readonly ILogger<DepartmentController> _logger;
-        private readonly IHostEnvironment _environment;
+        private readonly IHostEnvironment _environment; 
 
-        public DepartmentController(IDepartmentService departmentService,
+        public DepartmentController(
+                                    IDepartmentService departmentService,
+                                    IMapper mapper,
                                      ILogger<DepartmentController> logger,
-                                     IWebHostEnvironment environment)
+                                     IWebHostEnvironment environment
+            )
         {
             _departmentService = departmentService;
+            _mapper = mapper;
             _logger = logger;
             _environment = environment;
         }
@@ -29,9 +35,9 @@ namespace Route.IKEA.PL.Controllers
         #region Index 
 
             [HttpGet] // Get => /Department/Index
-            public IActionResult Index()
+            public async Task <IActionResult> Index()
             {
-                var departments = _departmentService.GetAllDepartments();
+                var departments =await _departmentService.GetAllDepartmentsAsync();
                 return View(departments);
             }
 
@@ -40,13 +46,13 @@ namespace Route.IKEA.PL.Controllers
         #region Details
 
         [HttpGet] // Get => /Department/Details
-        public IActionResult Details(int? id)
+        public async Task <IActionResult> Details(int? id)
         {
             if (id == null)
                 return BadRequest();
 
 
-            var department = _departmentService.GetDepartmentById(id.Value);
+            var department = await _departmentService.GetDepartmentByIdAsync(id.Value);
 
             if (department == null)
                 return NotFound();
@@ -68,7 +74,7 @@ namespace Route.IKEA.PL.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(DepartmentViewModel departmentVm)
+        public async Task<IActionResult> Create(DepartmentViewModel departmentVm)
         {
             var message = "Department Is Not Created";
             if (ModelState.IsValid) // server side validation
@@ -76,15 +82,19 @@ namespace Route.IKEA.PL.Controllers
                 try
                 {
 
-                    var createdDepartment = new CreatedDepartmentDto()
-                    {
 
-                        Code = departmentVm.Code,
-                        Name = departmentVm.Name,
-                        CreationDate = departmentVm.CreationDate,
-                        Description = departmentVm.Description,
-                    };
-                    var Created = _departmentService.CreateDepartment(createdDepartment) > 0;
+
+                    //var createdDepartment = new CreatedDepartmentDto()
+                    //{
+
+                    //    Code = departmentVm.Code,
+                    //    Name = departmentVm.Name,
+                    //    CreationDate = departmentVm.CreationDate,
+                    //    Description = departmentVm.Description,
+                    //};
+                    var createdDepartment = _mapper.Map<DepartmentViewModel,CreatedDepartmentDto>(departmentVm);
+
+                    var Created =await _departmentService.CreateDepartmentAsync(createdDepartment) > 0;
                     
                     if (Created)
         
@@ -120,29 +130,25 @@ namespace Route.IKEA.PL.Controllers
         #region Update
 
         [HttpGet] // Get => /Department/Edit/id
-        public IActionResult Edit(int? id)
+        public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
                 return BadRequest(); // 400 & i can redirect user to another page
 
-            var department = _departmentService.GetDepartmentById(id.Value);
+            var department = await _departmentService.GetDepartmentByIdAsync(id.Value);
 
             if (department == null)
                 return NotFound(); // 404 
+            var departmentVm = _mapper.Map<DepartmentDetailsDto , DepartmentViewModel>(department);
+            return View(departmentVm);
 
-            return View(new DepartmentViewModel()
-            {
-                Code = department.Code,
-                Name = department.Name,
-                CreationDate = department.CreationDate,
-                Description = department.Description,
-            });
+
 
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit([FromRoute] int id, DepartmentViewModel departmentViewModel)
+        public async Task<IActionResult> Edit([FromRoute] int id, DepartmentViewModel departmentViewModel)
         {
             if (!ModelState.IsValid) // Server-Side Validation
                 return View(departmentViewModel);
@@ -152,16 +158,21 @@ namespace Route.IKEA.PL.Controllers
 
             try
             {
-                var updatedDepartment = new UpdatedDepartmentDto()
-                {
-                    Id = id,
-                    Code = departmentViewModel.Code,
-                    Name = departmentViewModel.Name,
-                    CreationDate = departmentViewModel.CreationDate,
-                    Description = departmentViewModel.Description,
-                };
 
-                var updated = _departmentService.UpdateDepartment(updatedDepartment) > 0;
+                #region Manual Mapping 
+                /// var updatedDepartment = new UpdatedDepartmentDto()
+                ///{
+                ///// Id = id,
+                ///// Code = departmentViewModel.Code,
+                ///// Name = departmentViewModel.Name,
+                ///// CreationDate = departmentViewModel.CreationDate,
+                ///// Description = departmentViewModel.Description,
+                /////};
+
+                #endregion
+
+                var updatedDepartment = _mapper.Map<DepartmentViewModel, UpdatedDepartmentDto>(departmentViewModel);
+                var updated = await _departmentService.UpdateDepartmentAsync(updatedDepartment) > 0;
 
                 if (updated)
                     return RedirectToAction("Index");
@@ -191,12 +202,12 @@ namespace Route.IKEA.PL.Controllers
         #region Delete
 
         [HttpGet] // Get => /Department/Delete/id
-        public IActionResult Delete(int? id)
+        public async  Task<IActionResult> Delete(int? id)
         {
             if (id is null)
                 return BadRequest();
 
-            var department = _departmentService.GetDepartmentById(id.Value);
+            var department = await _departmentService.GetDepartmentByIdAsync(id.Value);
             if (department is null)
                 return NotFound();
 
@@ -206,13 +217,13 @@ namespace Route.IKEA.PL.Controllers
 
         [HttpPost] // Post => /Department/Delete/id
         [ValidateAntiForgeryToken]
-        public IActionResult Delete(int id)
+        public async Task <IActionResult> Delete(int id)
         {
             var message = string.Empty;
 
             try
             {
-                var deleted = _departmentService.DeleteDepartment(id);
+                var deleted =  await _departmentService.DeleteDepartmentAsync(id);
                 if (deleted)
                 {
                     // Deletion successful, redirect to the Index page
@@ -233,7 +244,7 @@ namespace Route.IKEA.PL.Controllers
             }
 
             // If we reach this point, there was a failure, so return the view with the department and error message.
-            var department = _departmentService.GetDepartmentById(id);
+            var department = await _departmentService.GetDepartmentByIdAsync(id);
             if (department == null)
                 return NotFound(); // Handle case where department is no longer found
 

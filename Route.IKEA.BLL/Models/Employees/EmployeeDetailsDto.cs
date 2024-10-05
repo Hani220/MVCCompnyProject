@@ -1,4 +1,5 @@
-﻿using Route.IKEA.DAL.Common.Enums;
+﻿using Microsoft.AspNetCore.Http;
+using Route.IKEA.DAL.Common.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -35,6 +36,8 @@ namespace Route.IKEA.BLL.Models.Employees
         public Gender Gender { get; set; }
         public EmployeeType EmployeeType { get; set; }
 
+        public string? Image { get; set; }
+
 
         #region Adminstration 
         public int CreatedBy { get; set; }
@@ -44,5 +47,7 @@ namespace Route.IKEA.BLL.Models.Employees
         #endregion
 
         public string? Department { get; set; }
+
+
     }
 }

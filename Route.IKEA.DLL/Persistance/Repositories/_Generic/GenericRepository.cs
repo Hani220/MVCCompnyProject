@@ -11,12 +11,12 @@ namespace Route.IKEA.DAL.Persistance.Repositories._Generic
         private protected readonly ApplicationDbContext _dbContext = dbContext;
       
 
-        public IEnumerable<T> GetAll(bool withAsNoTracking = true)
+        public async Task <IEnumerable<T>> GetAllAsync(bool withAsNoTracking = true)
         {
             if (withAsNoTracking)
-                return _dbContext.Set<T>().Where(x => !x.IsDeleted).AsNoTracking().ToList();
+                return await _dbContext.Set<T>().Where(x => !x.IsDeleted).AsNoTracking().ToListAsync();
 
-            return _dbContext.Set<T>().Where(x => !x.IsDeleted).ToList();
+            return await _dbContext.Set<T>().Where(x => !x.IsDeleted).ToListAsync();
         }
 
         public IQueryable<T> GetIQueryable()
@@ -29,28 +29,27 @@ namespace Route.IKEA.DAL.Persistance.Repositories._Generic
             return _dbContext.Set<T>();
         }
 
-        public T? Get(int id)
+        public async Task <T?> GetAsync(int id)
         {
-            return _dbContext.Set<T>().Find(id);
+            return await _dbContext.Set<T>().FindAsync(id);
         }
 
-        public int Add(T entity)
-        {
-            _dbContext.Set<T>().Add(entity);
-            return _dbContext.SaveChanges();
-        }
+        public void Add(T entity) =>  _dbContext.Set<T>().Add(entity);
 
-        public int Update(T entity)
-        {
-            _dbContext.Set<T>().Update(entity);
-            return _dbContext.SaveChanges();
-        }
 
-        public int Delete(T entity)
+
+
+
+        public void Update(T entity) => _dbContext.Set<T>().Update(entity);
+
+
+
+
+        public void Delete(T entity)
         {
             entity.IsDeleted = true;
             _dbContext.Set<T>().Update(entity);
-            return _dbContext.SaveChanges();
+          
         }
 
        
