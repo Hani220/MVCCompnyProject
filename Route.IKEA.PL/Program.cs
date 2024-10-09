@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Route.IKEA.BLL.Common.Services.Attachments;
 using Route.IKEA.BLL.Services.Departments;
 using Route.IKEA.BLL.Services.Employees;
+using Route.IKEA.DAL.Entities.Identity;
 using Route.IKEA.DAL.Persistance.Data;
 using Route.IKEA.DAL.Persistance.Repositories.Departments;
 using Route.IKEA.DAL.Persistance.Repositories.Employees;
@@ -41,6 +43,36 @@ namespace Route.IKEA.PL
 
             builder.Services.AddAutoMapper(M => M.AddProfile(new MappingProfile()));
 
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+            {
+                // Password settings
+                options.Password.RequiredLength = 5;
+                options.Password.RequireNonAlphanumeric = true;
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+
+
+                options.User.RequireUniqueEmail = true;
+
+                options.Lockout.AllowedForNewUsers = true;
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromDays(5);
+
+            })
+             .AddEntityFrameworkStores<ApplicationDbContext>();
+            //.AddDefaultTokenProviders();
+
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Account/SignIn"; // Path to the login page
+                options.AccessDeniedPath = "/Home/Error"; // Path for access denied
+                options.LogoutPath = "/Account/SignIn"; // Redirect to login after sign-out
+            });
+
+
+
+
 
             #endregion
 
@@ -58,7 +90,7 @@ namespace Route.IKEA.PL
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllerRoute(

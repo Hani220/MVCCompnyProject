@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Route.IKEA.PL.ViewModels;
 using Route.IKEA.PL.ViewModels.Common;
@@ -5,6 +6,7 @@ using System.Diagnostics;
 
 namespace Route.IKEA.PL.Controllers
 {
+	[Authorize]
 	public class HomeController : Controller
 	{
 		private readonly ILogger<HomeController> _logger;

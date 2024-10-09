@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Route.IKEA.BLL.Models.Employees;
 using Route.IKEA.BLL.Services.Departments;
 using Route.IKEA.BLL.Services.Employees;
@@ -6,7 +7,8 @@ using Route.IKEA.PL.ViewModels.Employee;
 
 namespace Route.IKEA.PL.Controllers
 {
-    public class EmployeeController : Controller
+	[Authorize]
+	public class EmployeeController : Controller
     {
         #region Services 
         private readonly IEmployeeService _employeeService;

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.DotNet.Scaffolding.Shared.Messaging;
 using Route.IKEA.BLL.Models.Departments;
@@ -7,9 +8,10 @@ using Route.IKEA.PL.ViewModels.Department;
 
 namespace Route.IKEA.PL.Controllers
 {
-    // Inheritance => DepartmentController is    a Controller    
-    // Composition => DepartmentController has   a IDepartmentService
-    public class DepartmentController : Controller
+	// Inheritance => DepartmentController is    a Controller    
+	// Composition => DepartmentController has   a IDepartmentService
+	[Authorize]
+	public class DepartmentController : Controller
     {
         #region Services
 
